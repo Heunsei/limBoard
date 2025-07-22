@@ -1,0 +1,21 @@
+# TODO : 도커 컴포즈 파일 작성 ( 백엔드 서버 도커 파일 작성 / compose 파일 db 띄우기 )
+
+version: '1.0'
+
+services:
+  backend_database:
+    image: postgres:16
+    environment:
+      POSTGRES_USER: postgres
+      POSTGRES_PASSWORD: postgres
+      POSTGRES_DB: postgres
+    ports:
+      - '6001:5432'
+    volumes:
+      - ./backend/postgres/:/var/lib/postgresql/data
+    healthcheck:
+      test: [ "CMD-SHELL", "pg_isready -U postgres" ]
+      interval: 5s
+      timeout: 10s
+      retries: 5
+      start_period: 5s

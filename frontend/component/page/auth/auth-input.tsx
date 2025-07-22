@@ -1,10 +1,10 @@
 'use client'
 
-import { Mail, Eye, Lock, EyeOff } from "lucide-react"
+import { Mail, Eye, Lock, EyeOff, UserRound } from "lucide-react"
 import { Dispatch, SetStateAction, useState } from "react";
 
 interface AuthInputProp {
-    type: 'email' | 'password' | 'text';
+    type: 'email' | 'password' | 'text' | 'nickname';
     placeholder?: string;
     value: string;
     label?: string;
@@ -25,7 +25,7 @@ function AuthInput(
         required = false,
         disabled = false,
         error,
-    }: & AuthInputProp) {
+    }: AuthInputProp) {
 
     const [isFocused, setIsFocused] = useState(false);
     const [showPassword, setShowPassword] = useState(false);
@@ -35,7 +35,9 @@ function AuthInput(
             case 'email':
                 return <Mail className="w-5 h-5 text-gray-400" />;
             case 'password':
-                return <Lock className="w-5 h-5 text-gray-400" />
+                return <Lock className="w-5 h-5 text-gray-400" />;
+            case 'nickname':
+                return <UserRound className="w-5 h-5 text-gray-400" />;
             default:
                 return null;
         }
