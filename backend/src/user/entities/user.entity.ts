@@ -1,16 +1,31 @@
-import {Column, CreateDateColumn, Entity, ManyToMany, PrimaryGeneratedColumn, UpdateDateColumn} from "typeorm";
+import {
+    Column,
+    CreateDateColumn,
+    Entity,
+    ManyToOne,
+    OneToMany,
+    PrimaryGeneratedColumn,
+    UpdateDateColumn
+} from "typeorm";
 import {IsEmail, IsString} from "class-validator";
+import {TeamMemberEntity} from "../../team/entities/teamMember.entity";
+import {ProjectMemberEntity} from "../../project/entities/projectMember.entity";
+import {TaskEntity} from "../../task/entities/task.entity";
 
 @Entity()
-export class User {
+export class UserEntity {
     @PrimaryGeneratedColumn('uuid')
     id: string;
 
-    @Column()
+    @Column({
+        unique: true,
+    })
     @IsEmail()
     email: string;
 
-    @Column()
+    @Column({
+        unique: true,
+    })
     @IsString()
     nickname: string;
 
@@ -18,18 +33,20 @@ export class User {
     @IsString()
     password: string;
 
-    @Column()
+    @Column({
+        nullable: true,
+    })
     @IsString()
     description: string;
 
-    // @ManyToMany()
-    // teamMember: TeamMember[];
-    //
-    // @ManyToMany()
-    // projectMember: ProjectMemeber[]
-    //
-    // @ManyToMany()
-    // assignedTasks: Task[]
+    @OneToMany(() => TeamMemberEntity, teamMember => teamMember.user)
+    teamMember: TeamMemberEntity[];
+
+    @OneToMany(() => ProjectMemberEntity, projectMember => projectMember.user)
+    projectMember: ProjectMemberEntity[];
+
+    @ManyToOne(() => TaskEntity, task => task.user)
+    tasks: TaskEntity[]
 
     @CreateDateColumn()
     createdAt: Date;

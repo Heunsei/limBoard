@@ -3,6 +3,24 @@
 version: '1.0'
 
 services:
+  backend:
+    build:
+      context: .
+      dockerfile: ./backend/Dockerfile
+      target: development
+    command: pnpm run start:dev
+    depends_on:
+      backend_database:
+        condition: service_healthy
+    ports:
+      - '3001:3000'
+    env_file:
+      - ./backend/.env
+    volumes:
+      # 개발 중인 소스 코드만 마운트
+      - ./backend/src:/usr/src/app/src
+      - /usr/src/app/node_modules
+
   backend_database:
     image: postgres:16
     environment:
@@ -10,7 +28,7 @@ services:
       POSTGRES_PASSWORD: postgres
       POSTGRES_DB: postgres
     ports:
-      - '6001:5432'
+      - '6000:5432'
     volumes:
       - ./backend/postgres/:/var/lib/postgresql/data
     healthcheck:
