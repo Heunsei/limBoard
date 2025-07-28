@@ -1,19 +1,25 @@
+import * as bcrypt from 'bcrypt';
+import {Repository} from "typeorm";
+import {InjectRepository} from "@nestjs/typeorm";
 import {BadRequestException, Injectable} from '@nestjs/common';
+
+import {UserEntity} from "./entities/user.entity";
+
 import { CreateUserDto } from './dto/create-user.dto';
 import { UpdateUserDto } from './dto/update-user.dto';
-import {InjectRepository} from "@nestjs/typeorm";
-import {UserEntity} from "./entities/user.entity";
-import {Repository} from "typeorm";
+import {ConfigService} from "@nestjs/config";
+import {envVariablesKeys} from "../common/const/env.const";
 
 @Injectable()
 export class UserService {
   constructor(
       @InjectRepository(UserEntity)
       private readonly userRepository: Repository<UserEntity>,
-  ) {
-  }
+      private readonly configService: ConfigService,
+  ) {}
+
   async create(createUserDto: CreateUserDto) {
-    const {email, password, nickname} = createUserDto;
+    const {email, password} = createUserDto;
 
     const isEmailExist = await this.userRepository.findOne({
       where: { email },
@@ -23,24 +29,59 @@ export class UserService {
       throw new BadRequestException("User already exists");
     }
 
-    const newUser = await this.userRepository.save(createUserDto);
+    const hashedPassword = await bcrypt.hash(password, this.configService.get<number>(envVariablesKeys.hashRounds) as number )
+
+    const newUser = await this.userRepository.save({
+      ...createUserDto,
+      password: hashedPassword,
+    });
 
     return newUser;
   }
 
-  findAll() {
-    return `This action returns all user`;
+  async findOne(id: string) {
+    const findUser = await this.userRepository.findOne({
+      where: { id },
+    });
+
+    if(!findUser) {
+      throw new BadRequestException(`${id} not found`)
+    }
+
+    return findUser;
   }
 
-  findOne(id: number) {
-    return `This action returns a #${id} user`;
+  async update(id: string, updateUserDto: UpdateUserDto) {
+    const user = await this.userRepository.findOne({
+      where: {id}
+    })
+
+    if(!user) {
+      throw new BadRequestException(`${id} not found`)
+    }
+
+    await this.userRepository.update(id, updateUserDto);
+
+    return await this.userRepository.findOne({
+      where: {id}
+    });
   }
 
-  update(id: number, updateUserDto: UpdateUserDto) {
-    return `This action updates a #${id} user`;
-  }
+  async remove(id: string) {
+    const user = await this.userRepository.findOne({
+      where: {id}
+    })
 
-  remove(id: number) {
-    return `This action removes a #${id} user`;
+    if(!user) {
+      throw new BadRequestException(`${id} not found`)
+    }
+
+    try {
+      await this.userRepository.delete(id);
+    } catch (error) {
+      throw new BadRequestException(`유저 삭제도중 문제가 발생했습니다, error : ${error}`);
+    }
+
+    return id;
   }
 }

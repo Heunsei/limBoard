@@ -24,6 +24,9 @@ import {TeamMemberEntity} from "./team/entities/teamMember.entity";
         envFilePath: '.env',
         validationSchema: Joi.object({
             ENV: Joi.string().valid('test', 'dev', 'prod').required(),
+            HASH_ROUNDS: Joi.number().required(),
+            ACCESS_TOKEN_SECRET: Joi.string().required(),
+            REFRESH_TOKEN_SECRET: Joi.string().required(),
         })
       }),
       TypeOrmModule.forRootAsync({
