@@ -30,6 +30,7 @@ function AuthInput(
     const [isFocused, setIsFocused] = useState(false);
     const [showPassword, setShowPassword] = useState(false);
 
+
     function getIcon() {
         switch (type) {
             case 'email':
