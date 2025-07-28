@@ -11,7 +11,7 @@ RUN npm i -g pnpm
 
 RUN pnpm i
 
-COPY /backend /backend
+COPY /backend .
 
 RUN pnpm run build
 

@@ -1,9 +1,34 @@
-# TODO : 도커 컴포즈 파일 작성 ( 백엔드 서버 도커 파일 작성 / compose 파일 db 띄우기 )
-
 version: '1.0'
 
 services:
-  backend:
+  frontend:
+    build:
+      context: .
+      dockerfile: ./frontend/Dockerfile
+    ports:
+      - '3000:3000'
+    env_file:
+      - ./frontend/.env
+    profiles:
+      - production
+
+  frontend-dev:
+    build:
+      context: .
+      dockerfile: ./frontend/Dockerfile
+      target: development
+    env_file:
+      - ./frontend/.env
+    ports:
+      - '3000:3000'
+    volumes:
+      # 소스코드 핫 리로드를 위한 볼륨 마운트
+      - ./frontend:/usr/src/app
+      - /usr/src/app/node_modules
+    profiles:
+      - development
+
+  backend-dev:
     build:
       context: .
       dockerfile: ./backend/Dockerfile
@@ -13,13 +38,15 @@ services:
       backend_database:
         condition: service_healthy
     ports:
-      - '3001:3000'
+      - '3001:3001'
     env_file:
       - ./backend/.env
     volumes:
       # 개발 중인 소스 코드만 마운트
       - ./backend/src:/usr/src/app/src
       - /usr/src/app/node_modules
+    profiles:
+      - development
 
   backend_database:
     image: postgres:16
