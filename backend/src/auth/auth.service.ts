@@ -1,7 +1,7 @@
 import * as bcrypt from 'bcrypt';
 import {Repository} from "typeorm";
 import {InjectRepository} from "@nestjs/typeorm";
-import {BadRequestException, Injectable} from '@nestjs/common';
+import {BadRequestException, Injectable, NotFoundException, UnauthorizedException} from '@nestjs/common';
 
 import {JwtService} from "@nestjs/jwt";
 import {ConfigService} from "@nestjs/config";
@@ -69,13 +69,13 @@ export class AuthService {
         })
 
         if(!user){
-            throw new BadRequestException('User does not exist');
+            throw new UnauthorizedException('User does not exist');
         }
 
         const pass = await bcrypt.compare(password, user.password);
 
         if (!pass) {
-            throw new BadRequestException('Invalid password');
+            throw new UnauthorizedException('Invalid password');
         }
 
         return user;
