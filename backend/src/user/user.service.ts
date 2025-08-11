@@ -51,6 +51,18 @@ export class UserService {
     return findUser;
   }
 
+  async findByEmail(email: string){
+    const findUser = await this.userRepository.findOne({
+      where: {email: email}
+    })
+
+    if(!findUser) {
+      throw new BadRequestException(`${email} not found`);
+    }
+
+    return findUser;
+  }
+
   async update(id: string, updateUserDto: UpdateUserDto) {
     const user = await this.userRepository.findOne({
       where: {id}
