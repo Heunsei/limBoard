@@ -18,7 +18,7 @@ export default function Layout({children}: {children: ReactNode}) {
     return (
         <div className='flex h-full'>
             <main className="w-full p-10 md:w-2/5 bg-[#0D0D0E] ">
-                <div className='fixed top-5 left-5 md:absolute md:top-3 md:left-3 flex justify-center md:justify-start w-full md:w-auto'>
+                <div className='top-5 left-5 md:absolute md:top-3 md:left-3 flex justify-center md:justify-start w-full md:w-auto'>
                     <Logo/>
                 </div>
                 <div className="pt-20 md:pt-15">
