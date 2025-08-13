@@ -1,13 +1,8 @@
-import {BadRequestException, createParamDecorator} from "@nestjs/common";
+import { createParamDecorator, ExecutionContext } from '@nestjs/common';
 
 export const Authorization = createParamDecorator(
-    (data, context) => {
+    (data: any, context: ExecutionContext) => {
         const req = context.switchToHttp().getRequest();
-
-        if(!req.headers['authorization']){
-            throw new BadRequestException('로그인 정보를 입력해 주세요')
-        }
-
         return req.headers['authorization'];
-    }
-)
+    },
+);

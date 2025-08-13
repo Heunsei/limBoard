@@ -1,7 +1,7 @@
 import * as bcrypt from 'bcrypt';
 import {Repository} from "typeorm";
 import {InjectRepository} from "@nestjs/typeorm";
-import {BadRequestException, Injectable, NotFoundException, UnauthorizedException} from '@nestjs/common';
+import {BadRequestException, Injectable, UnauthorizedException} from '@nestjs/common';
 
 import {JwtService} from "@nestjs/jwt";
 import {ConfigService} from "@nestjs/config";
@@ -63,7 +63,7 @@ export class AuthService {
         return {email, password};
     }
 
-     async authenticateUser(email: string, password: string) {
+    async authenticateUser(email: string, password: string) {
         const user = await this.userRepository.findOne({
             where: {email},
         })
@@ -82,13 +82,14 @@ export class AuthService {
     }
 
     // 토큰을 발급해주는 함수
-    async issueToken(user: {id: string}, isRefresh: boolean){
+    async issueToken(user: {id: string, email: string}, isRefresh: boolean){
         const accessTokenSecret = this.configService.get<string>(envVariablesKeys.accessTokenSecret);
         const refreshTokenSecret = this.configService.get<string>(envVariablesKeys.refreshTokenSecret);
 
         return this.jwtService.signAsync(
             {
                 sub: user.id,
+                email: user.email,
                 type: isRefresh ? 'refresh' : 'access',
             },
             {
@@ -96,6 +97,36 @@ export class AuthService {
                 expiresIn: isRefresh ? '24h' : 300,
             }
         )
+    }
 
+    async refreshToken(refreshToken: string) {
+        const splitToken = refreshToken.split(' ');
+        const refreshTokenSecret = this.configService.get<string>(envVariablesKeys.refreshTokenSecret);
+
+        if(splitToken.length !== 2){
+            throw new BadRequestException('Invalid refreshToken')
+        }
+
+        const [bearer, token] = splitToken;
+
+        if (bearer.toLowerCase() !== 'bearer') {
+            throw new UnauthorizedException('Invalid refreshToken')
+        }
+
+        try {
+            const payload = this.jwtService.verify(token, {secret: refreshTokenSecret});
+
+            const newPayload = {id: payload.sub, email: payload.email};
+
+            const newAccessToken = await this.issueToken(newPayload, false);
+            const newRefreshToken = await this.issueToken(newPayload, true);
+
+            return {
+                accessToken: newAccessToken,
+                refreshToken: newRefreshToken,
+            }
+        } catch {
+            throw new UnauthorizedException('Invalid refreshToken')
+        }
     }
 }

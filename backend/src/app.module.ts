@@ -1,5 +1,5 @@
 import * as Joi from 'joi';
-import { Module } from '@nestjs/common';
+import {MiddlewareConsumer, Module, RequestMethod} from '@nestjs/common';
 import {TypeOrmModule} from "@nestjs/typeorm";
 import {ConfigModule, ConfigService} from "@nestjs/config";
 
@@ -16,6 +16,8 @@ import {ProjectEntity} from "./project/entities/project.entity";
 import {ProjectMemberEntity} from "./project/entities/projectMember.entity";
 import {TeamEntity} from "./team/entities/team.entity";
 import {TeamMemberEntity} from "./team/entities/teamMember.entity";
+import {BearerTokenMiddleware} from "./auth/middleware/bearer-token.middleware";
+import {AuthController} from "./auth/auth.controller";
 
 @Module({
   imports: [
@@ -59,4 +61,14 @@ import {TeamMemberEntity} from "./team/entities/teamMember.entity";
   controllers: [],
   providers: [],
 })
-export class AppModule {}
+export class AppModule {
+    configure(consumer: MiddlewareConsumer) {
+        consumer
+            .apply(BearerTokenMiddleware)
+            .exclude(
+                {path: 'auth/login', method: RequestMethod.POST},
+                {path: 'auth/register', method: RequestMethod.POST},
+            )
+            .forRoutes("*")
+    }
+}

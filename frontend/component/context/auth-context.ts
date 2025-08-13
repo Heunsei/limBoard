@@ -1,15 +1,17 @@
+import React from "react";
+
 class TokenManager {
     static ACCESS_TOKEN = 'access_token';
     static REFRESH_TOKEN = 'refresh_token';
 
-    static accessToken = null;
-    static refreshToken = null;
+    static accessToken: null | string = null;
+    static refreshToken: null | string = null;
 
     /**
      * @param accessToken
      * @param refreshToken
      */
-    static setTokens (accessToken, refreshToken) {
+    static setTokens (accessToken: string, refreshToken: string) {
         this.accessToken = accessToken;
         this.refreshToken = refreshToken;
 
@@ -42,4 +44,20 @@ class TokenManager {
         }
         return null;
     }
+
+    static clearTokens() {
+        this.accessToken = null;
+        this.refreshToken = null;
+
+        if (typeof window !== 'undefined') {
+            sessionStorage.removeItem(this.ACCESS_TOKEN);
+            sessionStorage.removeItem(this.REFRESH_TOKEN);
+        }
+    }
 }
+
+const authContext = React.createContext(null);
+
+// export const AuthProvider ({children}) {
+//
+// }

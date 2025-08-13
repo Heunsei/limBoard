@@ -9,7 +9,6 @@ export class AuthController {
   constructor(private readonly authService: AuthService) {}
 
   @Post('login')
-  @HttpCode(HttpStatus.OK)
   loginUser(@Authorization('authorization') token: string){
     return this.authService.login(token)
   }
@@ -20,5 +19,10 @@ export class AuthController {
       @Body() registerUserDto: RegisterUserDto,
       ){
     return this.authService.register(token, {...registerUserDto})
+  }
+
+  @Post('refresh')
+  refreshToken(@Authorization('authorization') token: string){
+      return this.authService.refreshToken(token);
   }
 }
