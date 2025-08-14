@@ -46,7 +46,7 @@ export class AuthService {
     parseBasicToken(token: string){
         const [basic, basicToken] = token.split(' ');
 
-        if (basic.toLowerCase() !== 'basic') {
+        if(basic.toLowerCase() !== 'basic'){
             throw new BadRequestException('Need Basic token')
         }
 
@@ -54,7 +54,7 @@ export class AuthService {
 
         const splitToken = decodedToken.split(':');
 
-        if (splitToken.length !== 2) {
+        if(splitToken.length !== 2){
             throw new BadRequestException('Invalid token')
         }
 
@@ -74,8 +74,8 @@ export class AuthService {
 
         const pass = await bcrypt.compare(password, user.password);
 
-        if (!pass) {
-            throw new UnauthorizedException('Invalid password');
+        if(!pass){
+            throw new UnauthorizedException('User does not exist');
         }
 
         return user;
@@ -109,7 +109,7 @@ export class AuthService {
 
         const [bearer, token] = splitToken;
 
-        if (bearer.toLowerCase() !== 'bearer') {
+        if(bearer.toLowerCase() !== 'bearer'){
             throw new UnauthorizedException('Invalid refreshToken')
         }
 
