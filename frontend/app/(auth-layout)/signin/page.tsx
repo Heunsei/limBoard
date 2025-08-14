@@ -18,6 +18,8 @@ function SignInButton({email, password, id, disabled} : {email: string, password
         if(!res.ok) {
             handleDialogOpen()
         }
+
+        console.log(res);
     }
 
     return (
