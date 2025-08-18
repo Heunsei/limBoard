@@ -9,7 +9,6 @@ interface registerReqParams {
     nickname: string;
 }
 
-
 export type {
     loginReqParams,
     registerReqParams,

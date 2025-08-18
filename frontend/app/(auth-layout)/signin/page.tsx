@@ -2,32 +2,41 @@
 
 import Link from "next/link";
 import {useEffect, useState} from "react";
+import { useRouter } from "next/navigation";
 
 import { AuthInput } from "@/component/page/auth/auth-input";
 import {Separator} from "@/component/public/separator";
-
-import {login} from "@/api/auth/auth";
+import { useAuth } from "@/context/auth.context";
 import {DialogBody, DialogHeader, DialogProvider, useDialog} from "@/component/public/dialog";
 
 function SignInButton({email, password, id, disabled} : {email: string, password: string, id: string, disabled?: boolean}) {
     const {handleDialogOpen} = useDialog();
+    const { login, isLoading } = useAuth();
+    const router = useRouter();
 
     async function handleClickButton() {
-        const res = await login({email, password});
-
-        if(!res.ok) {
-            handleDialogOpen()
+        try {
+            const success = await login(email, password);
+            
+            if (success) {
+                router.push('/dashboard');
+            } else {
+                handleDialogOpen();
+            }
+        } catch (error) {
+            console.error('Login error:', error);
+            handleDialogOpen();
         }
-
-        console.log(res);
     }
 
     return (
         <button id={id} className={"p-3 bg-[#98A2F7] rounded-lg cursor-pointer disabled:cursor-not-allowed disabled:bg-gray-700"}
                 onClick={handleClickButton}
-                disabled={disabled}
+                disabled={disabled || isLoading}
         >
-            <p className={'font-bold text-xl'}>로그인</p>
+            <p className={'font-bold text-xl'}>
+                {isLoading ? '로그인 중...' : '로그인'}
+            </p>
         </button>
     )
 }
@@ -49,6 +58,15 @@ export default function Page() {
 
     const [emailError, setEmailError] = useState<string | null>(null);
     const [passwordError, setPasswordError] = useState<string | null>(null);
+
+    const { isAuthenticated } = useAuth();
+    const router = useRouter();
+
+    useEffect(() => {
+        if (isAuthenticated) {
+            router.push('/dashboard');
+        }
+    }, [isAuthenticated, router]);
 
     useEffect(() => {
         setEmailError(validateEmail(email));

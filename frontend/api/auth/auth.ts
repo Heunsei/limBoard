@@ -1,4 +1,15 @@
-import {loginReqParams, registerReqParams} from "@/api/auth/auth.type";
+import {loginReqParams, registerReqParams} from "@/type/auth.type";
+
+function setAccessToken(token: string | null) {
+    if (typeof window !== 'undefined') {
+        if (token) {
+            sessionStorage.setItem('accessToken', token);
+        } else {
+            sessionStorage.removeItem('accessToken');
+        }
+    }
+    return token;
+}
 
 async function login({email, password}: loginReqParams) {
     const hashLoginParams = btoa(`${email}:${password}`);

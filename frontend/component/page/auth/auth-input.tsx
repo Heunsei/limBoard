@@ -17,7 +17,6 @@ interface AuthInputProp {
     error?: string;
 }
 
-
 function AuthInput(
     {
         type,
@@ -36,8 +35,6 @@ function AuthInput(
 
     const [isFocused, setIsFocused] = useState(false);
     const [showPassword, setShowPassword] = useState(false);
-
-
 
     /**
      *
@@ -103,7 +100,6 @@ function AuthInput(
             </div>
         )
     }
-
 
     return (
         <div className={`space-y-2`}>

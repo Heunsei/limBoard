@@ -3,7 +3,9 @@
 import {AuthInput} from "@/component/page/auth/auth-input";
 import {useEffect, useState} from "react";
 import Link from "next/link";
-import {login, register} from "@/api/auth/auth";
+import { useRouter } from "next/navigation";
+import {register} from "@/api/auth/auth";
+import { useAuth } from "@/context/auth.context";
 import {DialogBody, DialogHeader, DialogProvider, useDialog} from "@/component/public/dialog";
 
 type registerButtonProps = {
@@ -15,24 +17,38 @@ type registerButtonProps = {
 }
 
 function RegisterButton({id, email, password, nickname, disabled}: registerButtonProps) {
-    const {handleDialogOpen} = useDialog()
-    async function handleClickButton() {
-        const res = await register({email, password, nickname});
+    const {handleDialogOpen} = useDialog();
+    const { login, isLoading } = useAuth();
+    const router = useRouter();
 
-        if (res.ok) {
-            const {data} = await login({email, password});
-            console.log(data)
-        } else if (!res.ok) {
-            handleDialogOpen()
+    async function handleClickButton() {
+        try {
+            const res = await register({email, password, nickname});
+
+            if (res.ok) {
+                const success = await login(email, password);
+                if (success) {
+                    router.push('/dashboard');
+                } else {
+                    handleDialogOpen();
+                }
+            } else {
+                handleDialogOpen();
+            }
+        } catch (error) {
+            console.error('Registration error:', error);
+            handleDialogOpen();
         }
     }
 
     return (
         <button id={id} className={"p-3 bg-[#98A2F7] rounded-lg cursor-pointer disabled:cursor-not-allowed disabled:bg-gray-700"}
                 onClick={handleClickButton}
-                disabled={disabled}
+                disabled={disabled || isLoading}
         >
-            <p className={'font-bold text-xl'}>회원가입</p>
+            <p className={'font-bold text-xl'}>
+                {isLoading ? '회원가입 중...' : '회원가입'}
+            </p>
         </button>
     )
 }
@@ -75,6 +91,15 @@ export default function Page() {
     const [passwordError, setPasswordError] = useState<string | null>(null);
     const [passwordConfirmError, setPasswordConfirmError] = useState<string | null>(null);
     const [nicknameError, setNicknameError] = useState<string | null>(null);
+
+    const { isAuthenticated } = useAuth();
+    const router = useRouter();
+
+    useEffect(() => {
+        if (isAuthenticated) {
+            router.push('/dashboard');
+        }
+    }, [isAuthenticated, router]);
 
     const isFormValid = email && password && passwordConfirm && nickname && !emailError && !passwordError && !passwordConfirmError && !nicknameError;
 
@@ -123,7 +148,7 @@ export default function Page() {
             </div>
             <DialogBody>
                 <DialogHeader>
-                    <p>잘못된 로그인 정보입니다</p>
+                    <p>회원가입에 실패했습니다</p>
                 </DialogHeader>
             </DialogBody>
         </DialogProvider>

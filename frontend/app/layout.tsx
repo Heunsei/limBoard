@@ -2,6 +2,7 @@ import type { Metadata } from "next";
 import { Geist, Geist_Mono } from "next/font/google";
 import localFont from "next/font/local";
 import "./globals.css";
+import { AuthProvider } from "@/context/auth.context";
 
 const sans = localFont({ src: "../public/font/GmarketSansLight.otf" });
 
@@ -36,7 +37,9 @@ export default function RootLayout({
       <body
         className={`${sans.className} ${gmarketBold.variable} ${geistSans.variable} ${geistMono.variable} h-screen antialiased dark`}
       >
-        {children}
+        <AuthProvider>
+          {children}
+        </AuthProvider>
       </body>
     </html>
   );
