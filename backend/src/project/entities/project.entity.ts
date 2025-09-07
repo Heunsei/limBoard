@@ -40,10 +40,14 @@ export class ProjectEntity {
     @ManyToOne(() => TeamEntity, team => team.projects)
     team: TeamEntity;
 
-    @OneToMany(() => ProjectMemberEntity, projectMember => projectMember.project)
+    @OneToMany(() => ProjectMemberEntity, projectMember => projectMember.project, {
+        cascade: ['remove']
+    })
     members: ProjectMemberEntity[];
 
-    @OneToMany(() => TaskEntity, task => task.project)
+    @OneToMany(() => TaskEntity, task => task.project, {
+        cascade: ['remove']
+    })
     tasks: TaskEntity[];
 
     @CreateDateColumn()

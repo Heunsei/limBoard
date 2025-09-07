@@ -1,7 +1,9 @@
-import {BadRequestException, Injectable, NestMiddleware, UnauthorizedException} from "@nestjs/common";
-import {ConfigService} from "@nestjs/config";
-import {JwtService} from "@nestjs/jwt";
 import {envVariablesKeys} from "../../common/const/env.const";
+
+import {JwtService} from "@nestjs/jwt";
+import {ConfigService} from "@nestjs/config";
+import {NextFunction, Request, Response} from "express";
+import {BadRequestException, Injectable, NestMiddleware, UnauthorizedException} from "@nestjs/common";
 
 @Injectable()
 export class BearerTokenMiddleware implements NestMiddleware {
@@ -10,7 +12,7 @@ export class BearerTokenMiddleware implements NestMiddleware {
         private readonly jwtService: JwtService,
     ) {}
 
-    async use(req: any, next: (error?: any) => void) {
+    async use(req: Request, res: Response, next: NextFunction) {
         const authHeader = req.headers['authorization'];
 
         if(!authHeader) {
@@ -35,13 +37,14 @@ export class BearerTokenMiddleware implements NestMiddleware {
                 secret: this.configService.get<string>(secretKey),
             });
 
-            next();
+            return next();
         } catch(e) {
             if (e.name === 'TokenExpiredError') {
                 throw new UnauthorizedException('토큰이 만료되었습니다.');
             }
-            next();
+            throw new UnauthorizedException(`ERROR : ${e} : ${token}`);
         }
+
     }
 
     validateBearerToken(rawToken: string) {

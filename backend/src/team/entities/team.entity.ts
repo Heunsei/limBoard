@@ -2,7 +2,6 @@ import {
     Column,
     CreateDateColumn,
     Entity,
-    ManyToOne,
     OneToMany,
     PrimaryGeneratedColumn,
     UpdateDateColumn
@@ -23,7 +22,7 @@ export class TeamEntity {
     })
     description: string;
 
-    @ManyToOne(() => TeamMemberEntity, teamMember => teamMember.team)
+    @OneToMany(() => TeamMemberEntity, teamMember => teamMember.team)
     members: TeamMemberEntity[];
 
     @OneToMany(() => ProjectEntity, project => project.team)

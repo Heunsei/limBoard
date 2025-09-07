@@ -3,7 +3,6 @@ import {
     CreateDateColumn,
     Entity,
     ManyToOne,
-    OneToMany,
     PrimaryGeneratedColumn,
     UpdateDateColumn
 } from "typeorm";
@@ -21,7 +20,6 @@ export enum TaskPriority {
     medium = 'Medium',
     high = 'High',
 }
-
 
 @Entity()
 export class TaskEntity {
@@ -51,8 +49,8 @@ export class TaskEntity {
     @ManyToOne(() => ProjectEntity, project => project.tasks)
     project: ProjectEntity;
 
-    @OneToMany(() => UserEntity, user => user.tasks)
-    user: UserEntity;
+    @ManyToOne(() => UserEntity, user => user.tasks, { nullable: true })
+    user: UserEntity | null;
 
     @Column()
     deadline: Date;

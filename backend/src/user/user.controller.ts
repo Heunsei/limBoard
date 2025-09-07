@@ -2,6 +2,8 @@ import {Controller, Get, Post, Body, Patch, Param, Delete, Query} from '@nestjs/
 import { UserService } from './user.service';
 import { CreateUserDto } from './dto/create-user.dto';
 import { UpdateUserDto } from './dto/update-user.dto';
+import { FindUserDto } from './dto/find-user.dto';
+import { UserDetailResponseDto } from './dto/user-response.dto';
 
 @Controller('user')
 export class UserController {
@@ -13,13 +15,13 @@ export class UserController {
   }
 
   @Get('find')
-  findByEmail(@Query('email') email: string) {
-    return this.userService.findByEmail(email);
+  findUser(@Query() findUserDto: FindUserDto) {
+    return this.userService.findUser(findUserDto);
   }
 
-  @Get(':id')
-  findOne(@Param('id') id: string) {
-    return this.userService.findOne(id);
+  @Get('find/detail')
+  findUserDetail(@Query() findUserDto: FindUserDto) {
+    return this.userService.findUserDetail(findUserDto);
   }
 
   @Patch(':id')

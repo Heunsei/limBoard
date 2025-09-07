@@ -64,18 +64,17 @@ export class AuthService {
     }
 
     async authenticateUser(email: string, password: string) {
-        const user = await this.userRepository.findOne({
-            where: {email},
-        })
-
-        if(!user){
-            throw new UnauthorizedException('User does not exist');
+        let user;
+        try {
+            user = await this.userService.findUserRaw({ type: 'email', value: email });
+        } catch (error) {
+            throw new UnauthorizedException('사용자가 존재하지 않습니다');
         }
 
         const pass = await bcrypt.compare(password, user.password);
 
         if(!pass){
-            throw new UnauthorizedException('User does not exist');
+            throw new UnauthorizedException('비밀번호가 일치하지 않습니다');
         }
 
         return user;
