@@ -1,6 +1,7 @@
-import {loginReqParams, registerReqParams} from "@/type/auth.type";
+import { loginReqParams, registerReqParams } from "@/type/auth.type";
+import { apiRequest, ApiResponse } from "@/api";
 
-function setAccessToken(token: string | null) {
+export function setAccessToken(token: string | null) {
     if (typeof window !== 'undefined') {
         if (token) {
             sessionStorage.setItem('accessToken', token);
@@ -11,87 +12,37 @@ function setAccessToken(token: string | null) {
     return token;
 }
 
-async function login({email, password}: loginReqParams) {
+export async function login({ email, password }: loginReqParams): Promise<ApiResponse> {
     const hashLoginParams = btoa(`${email}:${password}`);
 
-    try {
-        const res = await fetch(`http://${process.env.NEXT_PUBLIC_API_URL}/auth/login`, {
-            method: 'POST',
-            cache: "no-cache",
-            headers: {
-                'Content-Type': 'application/json',
-                authorization: `Basic ${hashLoginParams}`,
-            },
-            credentials: 'include',
-        });
-
-        const data = await res.json();
-
-        return {
-            ok: res.ok,
-            status: res.status,
-            data,
-        };
-    } catch (error) {
-        if (error instanceof Error) {
-            return { ok: false, error: error.message };
-        }
-        return { ok: false, error: '로그인 중 오류가 발생했습니다' };
-    }
-
-}
-
-async function register({email, password, nickname}: registerReqParams) {
-    const hashLoginParams = btoa(`${email}:${password}`);
-
-    try {
-        const res = await fetch(`http://${process.env.NEXT_PUBLIC_API_URL}/auth/register`, {
-            method: 'POST',
-            cache: "no-cache",
-            headers: {
-                'Content-Type': 'application/json',
-                'authorization': `Basic ${hashLoginParams}`
-            },
-            body: JSON.stringify({
-                nickname,
-            })
-        });
-
-        const data = await res.json();
-
-        return {
-            ok: res.ok,
-            status: res.status,
-            data,
-        }
-    } catch (error) {
-        if (error instanceof Error) {
-            return { ok: false, error: error.message };
-        }
-        return {
-            ok: false,
-            error: '회원가입에 실패했습니다',
-        }
-    }
-
-}
-
-async function findUserByEmail(email: string) {
-    const res = await fetch(`http://${process.env.NEXT_PUBLIC_API_URL}/user/find?email=${email}`, {
-        method: 'GET',
+    return apiRequest('/auth/login', {
+        method: 'POST',
         cache: "no-cache",
         headers: {
             'Content-Type': 'application/json',
+            'Authorization': `Basic ${hashLoginParams}`,
         },
     });
-
-    const data = await res.json();
-
-    return {
-        ok: res.ok,
-        status: res.status,
-        data,
-    }
 }
 
-export {login, register, findUserByEmail};
+export async function register({ email, password, nickname }: registerReqParams): Promise<ApiResponse> {
+    const hashLoginParams = btoa(`${email}:${password}`);
+
+    return apiRequest('/auth/register', {
+        method: 'POST',
+        cache: "no-cache",
+        headers: {
+            'Content-Type': 'application/json',
+            'Authorization': `Basic ${hashLoginParams}`
+        },
+        body: JSON.stringify({
+            nickname,
+        })
+    });
+}
+
+export async function refreshToken(): Promise<ApiResponse> {
+    return apiRequest('/auth/refresh', {
+        method: 'POST',
+    });
+}
